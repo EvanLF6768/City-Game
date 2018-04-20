@@ -1,0 +1,2 @@
+- Roads are 3 units wide as that is the Australian standard width rounded to the nearest unit
+- One-way lanes (almost all lanes) are implemented with one-way off mesh links at every intersection
