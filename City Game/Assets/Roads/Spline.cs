@@ -13,7 +13,7 @@ public struct Spline
     {
         x = new Parametic(startVal.x, startDir.x, endVal.x, endDir.x);
         y = new Parametic(startVal.y, startDir.y, endVal.y, endDir.y);
-        z = new Parametic(startVal.x, startDir.x, endVal.x, endDir.x);
+        z = new Parametic(startVal.z, startDir.z, endVal.z, endDir.z);
     }
 
     public Vector3 GetValue(float t)
@@ -26,11 +26,6 @@ public struct Spline
         return new Vector3(x.GetTangent(t), y.GetTangent(t), z.GetTangent(t));
     }
 
-    public Vector3 GetNormalXZ(float t)
-    {
-        return new Vector3(x.GetNormal(t), y.GetTangent(t), z.GetNormal(t));
-    }
-
     public struct Parametic
     {
         float a, b, c, d;
@@ -41,6 +36,11 @@ public struct Spline
             b = 3 * endVal - 3 * startVal - 2 * startDir - endDir;
             c = startDir;
             d = startVal;
+
+            Debug.Log(a);
+            Debug.Log(b);
+            Debug.Log(c);
+            Debug.Log(d);
         }
 
         public float GetValue(float t)
@@ -51,11 +51,6 @@ public struct Spline
         public float GetTangent(float t)
         {
             return (3 * a * t + 2 * b) * t + c;
-        }
-
-        public float GetNormal(float t)
-        {
-            return -1f / GetTangent(t);
         }
     }
 }
