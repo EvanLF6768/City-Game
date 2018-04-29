@@ -24,16 +24,16 @@ public static class PathMeshGenerator
 
             Vector2 P1 = path.GetValue(t);
             Vector2 P2 = path.GetValue(t + small);
-
-            Vector3 delta = (new Vector3(P1.x - P2.x, 0, P1.y - P2.y)).normalized;
-            Vector3 norm = new Vector3(delta.z, delta.y, delta.x) * width;
+            
+            Vector2 norm2 = path.GetNormal(t).normalized * width;
+            Vector3 norm = new Vector3(norm2.x, 0, norm2.y);
 
             points[i] = new Vector3(P1.x, 0, P1.y) + norm;
             i++;
 
             points[i] = new Vector3(P1.x, 0, P1.y) - norm;
 
-            Debug.Log(new Vector2(P1.x, P1.y));
+            Debug.Log(P1);
         }
 
         int[] tris = new int[(points.Count() - 2) * 6];
