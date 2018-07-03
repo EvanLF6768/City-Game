@@ -67,7 +67,7 @@ public class RoadGeneration : MonoBehaviour
                 }
                 if (next)
                 {
-                    Mesh mshj = PathMeshGenerator.Generate(new Arc(P1, P2, P3), 1.5f);
+                    Mesh mshj = PathMeshGenerator.Generate(new PathInfo(P1, P2, P3, new Spline(new Vector2(0,0), new Vector2(1,0), 0, 0)), 3f);
 
                     var road = new GameObject("Road");
 
@@ -84,12 +84,11 @@ public class RoadGeneration : MonoBehaviour
 
                     break;
                 }
-                P3 = (P3 - P2).normalized * (P1 - P2).magnitude + P2;
                 Guide2.transform.position = new Vector3(P3.x, 0, P3.y) + (new Vector3(P2.x - P3.x, 0.01f, P2.y - P3.y) / 2);
                 Guide2.transform.localScale = new Vector3(Guide1.transform.lossyScale.x, 1, (P3 - P2).magnitude / 10);
                 Guide2.transform.LookAt(new Vector3(P2.x, 0, P2.y));
 
-                Mesh msh = PathMeshGenerator.Generate(new Arc(P1, P2, P3), 1.5f);
+                Mesh msh = PathMeshGenerator.Generate(new PathInfo(P1, P2, P3, new Spline(new Vector2(0, 0), new Vector2(1, 0), 0, 0)), 3f);
                 var filt = RoadGuide.GetComponent<MeshFilter>();
                 filt.mesh = msh;
 

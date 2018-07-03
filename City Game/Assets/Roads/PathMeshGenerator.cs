@@ -7,33 +7,49 @@ using UnityEngine;
 
 public static class PathMeshGenerator
 {
-    const float resolution = 1f; // triangles per metre (Not that precise but it should do)
-    const float small = 0.001f;
+    const int subdivisions = 6;
 
-    public static Mesh Generate(Arc path, float width)
+    public static Vector2[] Subdivide(Vector2[] points, int iterations)
     {
-        int subdivisions = (int)Mathf.Ceil(path.GetLength() * resolution);
-        float distancePerSample = 0.5f / subdivisions;
-        subdivisions++;
+        if (iterations == 0) return points;
 
-        Vector3[] points = new Vector3[subdivisions * 2];
+        Vector2[] newPoints = new Vector2[points.Length * 2 - 1];
+        newPoints[0] = points[0];
+        newPoints[1] = Vector2.Lerp(points[0], points[1], 2f / 3f);
 
-        for (int i = 0; i < subdivisions * 2; i++)
+        for (int i = 1; i < points.Length - 1; i++)
         {
-            float t = i * distancePerSample;
+            newPoints[i * 2] = Vector2.Lerp(points[i], points[i + 1], 1f / 3f);
+            newPoints[i * 2 + 1] = Vector2.Lerp(points[i], points[i + 1], 2f / 3f);
+        }
 
-            Vector2 P1 = path.GetValue(t);
-            Vector2 P2 = path.GetValue(t + small);
-            
-            Vector2 norm2 = path.GetNormal(t).normalized * width;
-            Vector3 norm = new Vector3(norm2.x, 0, norm2.y);
+        newPoints[points.Length * 2 - 2] = points[points.Length - 1];
 
-            points[i] = new Vector3(P1.x, 0, P1.y) + norm;
-            i++;
+        return Subdivide(newPoints, iterations - 1);
+    }
 
-            points[i] = new Vector3(P1.x, 0, P1.y) - norm;
+    public static Vector3[] AddThirdDimension(Vector2[] points, Func<float, float> function)
+    {
+        Vector3[] output = new Vector3[points.Length];
 
-            Debug.Log(P1);
+        for (int i = 0; i < points.Length; i++)
+        {
+            output[i] = new Vector3(points[i].x, function((float)i / (float)points.Length), points[i].y);
+        }
+
+        return output;
+    }
+
+    public static Mesh Generate(PathInfo path, float width)
+    {
+        Vector3[] pointsLHS = AddThirdDimension(Subdivide(new Vector2[] { path.GetOffsetStart(width / 2), path.GetOffsetMiddle(width / 2), path.GetOffsetEnd(width / 2) }, subdivisions), path.Height.getValue);
+        Vector3[] pointsRHS = AddThirdDimension(Subdivide(new Vector2[] { path.GetOffsetStart(-width / 2), path.GetOffsetMiddle(-width / 2), path.GetOffsetEnd(-width / 2) }, subdivisions), path.Height.getValue);
+        Vector3[] points = new Vector3[pointsLHS.Length + pointsRHS.Length];
+
+        for (int i = 0; i < pointsLHS.Length; i++)
+        {
+            points[i * 2] = pointsLHS[i];
+            points[i * 2 + 1] = pointsRHS[i];
         }
 
         int[] tris = new int[(points.Count() - 2) * 6];

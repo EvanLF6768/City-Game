@@ -7,50 +7,22 @@ using UnityEngine;
 
 public struct Spline
 {
-    Parametic x, y, z;
+    public float a, b, c, d, shift;
 
-    public Spline(Vector3 startVal, Vector3 startDir, Vector3 endVal, Vector3 endDir)
+    public Spline(Vector2 p1, Vector2 p2, float d1, float d2)
     {
-        x = new Parametic(startVal.x, startDir.x, endVal.x, endDir.x);
-        y = new Parametic(startVal.y, startDir.y, endVal.y, endDir.y);
-        z = new Parametic(startVal.z, startDir.z, endVal.z, endDir.z);
+        Vector2 newP2 = new Vector2(p2.x - p1.x, p2.y);
+        shift = p2.x - p1.x;
+        d = p1.y;
+        c = d1;
+        float x2 = newP2.x * newP2.x;
+        a = -(2 * newP2.x * newP2.y - 2 * c * x2 + 2 * newP2.x * d - x2 * d2 + x2 * c) / (x2 * x2);
+        b = (d2 - c - 3 * a * x2) / (2 * newP2.x);
     }
 
-    public Vector3 GetValue(float t)
+    public float getValue(float t)
     {
-        return new Vector3(x.GetValue(t), y.GetValue(t), z.GetValue(t));
-    }
-
-    public Vector3 GetTangent(float t)
-    {
-        return new Vector3(x.GetTangent(t), y.GetTangent(t), z.GetTangent(t));
-    }
-
-    public struct Parametic
-    {
-        float a, b, c, d;
-
-        public Parametic(float startVal, float startDir, float endVal, float endDir)
-        {
-            a = 2 * startVal + startDir + endDir - 2 * endVal;
-            b = 3 * endVal - 3 * startVal - 2 * startDir - endDir;
-            c = startDir;
-            d = startVal;
-
-            Debug.Log(a);
-            Debug.Log(b);
-            Debug.Log(c);
-            Debug.Log(d);
-        }
-
-        public float GetValue(float t)
-        {
-            return ((a * t + b) * t + c) * t + d;
-        }
-
-        public float GetTangent(float t)
-        {
-            return (3 * a * t + 2 * b) * t + c;
-        }
+        t -= shift;
+        return a * t * t * t + b * t * t + c * t + d;
     }
 }
